@@ -5,5 +5,5 @@ project(Lava
     DESCRIPTION "A Modern C++ Vulkan Wrapper"
     LANGUAGES CXX)
 
-add_subdirectory(Lava/)
+add_subdirectory(src/)
 add_subdirectory(Examples/)
