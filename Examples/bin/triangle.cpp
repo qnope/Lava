@@ -1,12 +1,34 @@
+#include <thread>
 #include <iostream>
 
-#include <Lava/system/SdlContext.h>
+#include <Lava/system/Window.h>
+#include <Lava/system/EventLoop.h>
 
-int main() {
-  SdlContext context;
+using namespace std::chrono_literals;
 
-  auto l = []<typename T>(T){};
+struct Example {
 
-  std::cout << "lol" << std::endl;
-  return 0;
+    lava::NextEventLoopAction operator()(std::vector<lava::Event> &&events) {
+        for (auto &&event : events) {
+            if (std::holds_alternative<lava::ExitEvent>(event))
+                return lava::NextEventLoopAction::EXIT;
+        }
+
+        return lava::NextEventLoopAction::POLLED;
+    }
+};
+
+int main(int, char **) {
+    try {
+        lava::Window window{1024, 768, "Lava triangle"};
+
+        Example example;
+
+        lava::EventLoop::run(example);
+
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
+
+    return 0;
 }

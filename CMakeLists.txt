@@ -5,5 +5,17 @@ project(Lava
     DESCRIPTION "A Modern C++ Vulkan Wrapper"
     LANGUAGES CXX)
 
+include(FetchContent)
+
+FetchContent_Declare(
+  LittleTypeLibrary
+  GIT_REPOSITORY https://github.com/qnope/Little-Type-Library
+  GIT_TAG        origin/master
+)
+
+FetchContent_MakeAvailable(LittleTypeLibrary)
+
+find_package(SDL2 REQUIRED)
+
 add_subdirectory(src/)
 add_subdirectory(Examples/)

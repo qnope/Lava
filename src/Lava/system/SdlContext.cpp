@@ -2,7 +2,14 @@
 
 #include <iostream>
 
+namespace lava {
+
 SdlContext::SdlContext() {
-  std::cout << "SdlContext" << std::endl;
-  auto l = []<typename T>(T){};
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        throw SdlInitException{};
+    }
 }
+
+SdlContext::~SdlContext() { SDL_Quit(); }
+
+} // namespace lava
