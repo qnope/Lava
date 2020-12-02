@@ -1,13 +1,14 @@
 #include <thread>
 #include <iostream>
 
-#include <Lava/system/Window.h>
-#include <Lava/system/EventLoop.h>
+#include <Lava/sys/Window.h>
+#include <Lava/sys/EventLoop.h>
+
+#include <Lava/vk-sys/Instance.h>
 
 using namespace std::chrono_literals;
 
 struct Example {
-
     lava::NextEventLoopAction operator()(std::vector<lava::Event> &&events) {
         for (auto &&event : events) {
             if (std::holds_alternative<lava::ExitEvent>(event))
@@ -16,6 +17,8 @@ struct Example {
 
         return lava::NextEventLoopAction::POLLED;
     }
+
+    lava::Instance m_instance{"Triangle"};
 };
 
 int main(int, char **) {

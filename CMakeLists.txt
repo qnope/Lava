@@ -16,6 +16,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(LittleTypeLibrary)
 
 find_package(SDL2 REQUIRED)
+find_package(Vulkan REQUIRED)
 
 add_subdirectory(src/)
 add_subdirectory(Examples/)
