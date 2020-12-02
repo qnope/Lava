@@ -2,22 +2,22 @@ cmake_minimum_required(VERSION 3.14)
 
 include(GenerateExportHeader)
 
-set(SYSTEM_FILES
-    Lava/system/SdlContext.h
-    Lava/system/SdlContext.cpp
+set(SYS_FILES
+    Lava/sys/SdlContext.h
+    Lava/sys/SdlContext.cpp
 
-    Lava/system/exception.h
-    Lava/system/EventLoop.h
+    Lava/sys/exception.h
+    Lava/sys/EventLoop.h
 
-    Lava/system/Window.h
-    Lava/system/Window.cpp
+    Lava/sys/Window.h
+    Lava/sys/Window.cpp
 
-    Lava/system/Event.h
-    Lava/system/Event.cpp
+    Lava/sys/Event.h
+    Lava/sys/Event.cpp
     )
 
 add_library(Lava SHARED
-    ${SYSTEM_FILES})
+    ${SYS_FILES})
 generate_export_header(Lava)
 target_include_directories(Lava PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
 target_include_directories(Lava PUBLIC .)
