@@ -3,8 +3,6 @@
 #include <vulkan/vulkan.hpp>
 #include "lava_export.h"
 
-template class LAVA_EXPORT std::shared_ptr<vk::UniqueInstance>;
-
 namespace lava::details {
 template <typename T>
 struct VulkanResource {

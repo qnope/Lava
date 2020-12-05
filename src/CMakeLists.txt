@@ -28,6 +28,12 @@ add_library(Lava SHARED
     ${SYS_FILES}
     ${VK_SYS_FILES})
 generate_export_header(Lava)
+
+if(MSVC)
+    #+ Used to disable warning due to STL in header files
+    target_compile_options(Lava PUBLIC /wd4251)
+endif()
+
 target_include_directories(Lava PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
 target_include_directories(Lava PUBLIC .)
 target_include_directories(Lava PUBLIC ${SDL2_INCLUDE_DIRS})

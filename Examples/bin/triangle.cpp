@@ -1,5 +1,6 @@
 #include <thread>
 #include <iostream>
+#include <coroutine>
 
 #include <Lava/sys/Window.h>
 #include <Lava/sys/EventLoop.h>
@@ -18,14 +19,23 @@ struct Example {
         return lava::NextEventLoopAction::POLLED;
     }
 
-    lava::Instance m_instance{"Triangle"};
+    Example(lava::Window &window) : m_window{window} {}
+
+    lava::Window &m_window;
+    std::vector<std::string> m_extensions = m_window.getSdlExtensions({VK_EXT_DEBUG_REPORT_EXTENSION_NAME});
+
+    lava::Instance m_instance = lava::InstanceBuilder(lava::VulkanVersion::VERSION_1_0)
+                                    .setEngine("Lava", 0)
+                                    .setApplication("Triangle", 0)
+                                    .setExtensions(std::move(m_extensions))
+                                    .build();
 };
 
 int main(int, char **) {
     try {
         lava::Window window{1024, 768, "Lava triangle"};
 
-        Example example;
+        Example example{window};
 
         lava::EventLoop::run(example);
 
