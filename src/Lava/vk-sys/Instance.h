@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+#include "../sys/exception.h"
 #include "vulkan.h"
 
 namespace lava {
@@ -7,6 +9,8 @@ namespace lava {
 class LAVA_EXPORT Instance : details::VulkanResource<vk::UniqueInstance> {
   public:
     Instance(const vk::ApplicationInfo &appInfo, std::vector<std::string> layers, std::vector<std::string> extensions);
+
+    std::vector<vk::PhysicalDevice> physicalDevices() const noexcept;
 
   private:
 };

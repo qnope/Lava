@@ -15,6 +15,8 @@ set(SYS_FILES
     Lava/sys/Window.h
     Lava/sys/Window.cpp
 
+    Lava/vk-sys/Device.h
+    Lava/vk-sys/Device.cpp
     )
 
 set(VK_SYS_FILES

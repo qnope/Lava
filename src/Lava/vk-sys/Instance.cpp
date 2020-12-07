@@ -2,6 +2,7 @@
 
 #include <ltl/operator.h>
 #include <ltl/Range/Map.h>
+#include <ltl/Range/Filter.h>
 
 using namespace ltl;
 
@@ -17,6 +18,10 @@ Instance::Instance(const vk::ApplicationInfo &appInfo, std::vector<std::string> 
                     .setPEnabledExtensionNames(extensions_str);
     auto handle = vk::createInstanceUnique(info);
     m_handle = std::make_shared<vk::UniqueInstance>(std::move(handle));
+}
+
+std::vector<vk::PhysicalDevice> Instance::physicalDevices() const noexcept {
+    return getHandle().enumeratePhysicalDevices();
 }
 
 InstanceBuilder::InstanceBuilder(VulkanVersion version) : version{version} {}
