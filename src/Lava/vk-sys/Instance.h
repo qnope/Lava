@@ -10,7 +10,7 @@ class LAVA_EXPORT Instance : details::VulkanResource<vk::UniqueInstance> {
   public:
     Instance(const vk::ApplicationInfo &appInfo, std::vector<std::string> layers, std::vector<std::string> extensions);
 
-    std::vector<vk::PhysicalDevice> physicalDevices() const noexcept;
+    [[nodiscard]] std::vector<vk::PhysicalDevice> physicalDevices() const noexcept;
 
   private:
 };
@@ -24,12 +24,12 @@ enum class VulkanVersion {
 struct LAVA_EXPORT InstanceBuilder {
     InstanceBuilder(VulkanVersion version);
 
-    InstanceBuilder &setLayers(std::vector<std::string> layers);
-    InstanceBuilder &setExtensions(std::vector<std::string> extensions);
-    InstanceBuilder &setApplication(std::string appName, uint32_t appVersion);
-    InstanceBuilder &setEngine(std::string engineName, uint32_t engineVersion);
+    [[nodiscard]] InstanceBuilder &setLayers(std::vector<std::string> layers);
+    [[nodiscard]] InstanceBuilder &setExtensions(std::vector<std::string> extensions);
+    [[nodiscard]] InstanceBuilder &setApplication(std::string appName, uint32_t appVersion);
+    [[nodiscard]] InstanceBuilder &setEngine(std::string engineName, uint32_t engineVersion);
 
-    Instance build();
+    [[nodiscard]] Instance build();
 
     VulkanVersion version;
     uint32_t appVersion = 0;

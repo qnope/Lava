@@ -20,3 +20,4 @@ find_package(Vulkan REQUIRED)
 
 add_subdirectory(src/)
 add_subdirectory(Examples/)
+add_subdirectory(Tests/)

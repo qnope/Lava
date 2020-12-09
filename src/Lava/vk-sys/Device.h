@@ -22,13 +22,13 @@ class LAVA_EXPORT DeviceBuilder {
   public:
     DeviceBuilder(const Instance &instance);
 
-    DeviceBuilder &withGeometryShader() noexcept;
+    [[nodiscard]] DeviceBuilder &withGeometryShader() noexcept;
 
-    DeviceBuilder &withGraphicQueue() noexcept;
-    DeviceBuilder &withComputeQueue() noexcept;
-    DeviceBuilder &withTransferQueue() noexcept;
+    [[nodiscard]] DeviceBuilder &withGraphicQueue() noexcept;
+    [[nodiscard]] DeviceBuilder &withComputeQueue() noexcept;
+    [[nodiscard]] DeviceBuilder &withTransferQueue() noexcept;
 
-    Device build();
+    [[nodiscard]] Device build();
 
   private:
     const Instance &m_instance;
