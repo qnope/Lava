@@ -14,9 +14,6 @@ set(SYS_FILES
 
     Lava/sys/Window.h
     Lava/sys/Window.cpp
-
-    Lava/vk-sys/Device.h
-    Lava/vk-sys/Device.cpp
     )
 
 set(VK_SYS_FILES
@@ -24,6 +21,12 @@ set(VK_SYS_FILES
 
     Lava/vk-sys/Instance.h
     Lava/vk-sys/Instance.cpp
+
+    Lava/vk-sys/Device.h
+    Lava/vk-sys/Device.cpp
+
+    Lava/vk-sys/Surface.h
+    Lava/vk-sys/Surface.cpp
     )
 
 add_library(Lava SHARED

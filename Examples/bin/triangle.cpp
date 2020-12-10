@@ -34,6 +34,8 @@ struct Example {
     lava::Device m_device = lava::DeviceBuilder{m_instance} //
                                 .withGeometryShader()
                                 .build();
+
+    lava::Surface m_surface = m_window.createSurface(m_instance);
 };
 
 int main(int, char **) {

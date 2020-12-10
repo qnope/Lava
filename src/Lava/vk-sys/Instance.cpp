@@ -8,9 +8,10 @@ using namespace ltl;
 
 namespace lava {
 Instance::Instance(const vk::ApplicationInfo &appInfo, std::vector<std::string> layers,
-                   std::vector<std::string> extensions) {
+                   std::vector<std::string> extensions) :
+    m_extensions{std::move(extensions)} {
     auto layers_str = layers | map(&std::string::c_str) | to_vector;
-    auto extensions_str = extensions | map(&std::string::c_str) | to_vector;
+    auto extensions_str = m_extensions | map(&std::string::c_str) | to_vector;
 
     auto info = vk::InstanceCreateInfo()
                     .setPApplicationInfo(&appInfo)

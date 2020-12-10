@@ -13,9 +13,8 @@ class LAVA_EXPORT Device : public details::VulkanResource<vk::UniqueDevice> {
     Device(const Instance &instance, const std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> &features,
            vk::QueueFlags queueFlags);
 
-  private:
-    vk::PhysicalDeviceFeatures m_features;
-    vk::QueueFlags m_queueFlags;
+    const vk::QueueFlags queueFlags;
+    const vk::PhysicalDeviceFeatures features;
 };
 
 class LAVA_EXPORT DeviceBuilder {

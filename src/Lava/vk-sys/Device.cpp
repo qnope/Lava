@@ -33,18 +33,17 @@ static auto buildFeatures(const std::vector<vk::Bool32(vk::PhysicalDeviceFeature
     return result;
 }
 
-Device::Device(const Instance &instance, const std::vector<vk::Bool32(vk::PhysicalDeviceFeatures::*)> &features,
+Device::Device(const Instance &instance, const std::vector<vk::Bool32(vk::PhysicalDeviceFeatures::*)> &featurePtrs,
                vk::QueueFlags queueFlags) :
-    m_queueFlags{queueFlags} {
+    queueFlags{queueFlags},
+    features{buildFeatures(featurePtrs)} {
     auto physicalDevices = instance.physicalDevices() |                //
-                           ltl::filter(hasFeatures(features)) |        //
+                           ltl::filter(hasFeatures(featurePtrs)) |     //
                            ltl::filter(hasSuitableQueue(queueFlags)) | //
                            ltl::to_vector;
 
     if (physicalDevices.empty())
         throw NoPhysicalDeviceFoundException{};
-
-    m_features = buildFeatures(features);
 
     // maybe we can sort it
     auto physicalDevice = physicalDevices.front();
@@ -58,7 +57,7 @@ Device::Device(const Instance &instance, const std::vector<vk::Bool32(vk::Physic
 
     auto deviceCreateInfo = vk::DeviceCreateInfo() //
                                 .setQueueCreateInfos(queueCreateInfo)
-                                .setPEnabledFeatures(&m_features);
+                                .setPEnabledFeatures(&features);
 
     auto handle = physicalDevice.createDeviceUnique(deviceCreateInfo);
     m_handle = std::make_shared<vk::UniqueDevice>(std::move(handle));
