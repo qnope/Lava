@@ -31,11 +31,12 @@ struct Example {
                                     .setExtensions(std::move(m_extensions))
                                     .build();
 
+    lava::Surface m_surface = m_window.createSurface(m_instance);
+
     lava::Device m_device = lava::DeviceBuilder{m_instance} //
                                 .withGeometryShader()
+                                .withPresentationQueue(m_surface)
                                 .build();
-
-    lava::Surface m_surface = m_window.createSurface(m_instance);
 };
 
 int main(int, char **) {
