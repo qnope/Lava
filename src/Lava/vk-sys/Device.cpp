@@ -104,8 +104,7 @@ DeviceInstance::DeviceInstance(const Instance &instance,
                                 .setQueueCreateInfos(queueCreateInfo)
                                 .setPEnabledExtensionNames(extensionsAsCstr);
 
-    auto handle = physicalDevice.createDeviceUnique(deviceCreateInfo);
-    m_handle = std::move(handle);
+    m_handle = physicalDevice.createDeviceUnique(deviceCreateInfo);
 }
 
 DeviceBuilder::DeviceBuilder(const Instance &instance) : m_instance{instance} {}
