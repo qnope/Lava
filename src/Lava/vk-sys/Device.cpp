@@ -97,9 +97,12 @@ DeviceInstance::DeviceInstance(const Instance &instance,
                                .setQueuePriorities(queuePriority)
                                .setQueueFamilyIndex(queueIndex);
 
+    std::vector<const char *> extensionsAsCstr = extensions | ltl::map(&std::string::c_str);
+
     auto deviceCreateInfo = vk::DeviceCreateInfo() //
+                                .setPEnabledFeatures(&features)
                                 .setQueueCreateInfos(queueCreateInfo)
-                                .setPEnabledFeatures(&features);
+                                .setPEnabledExtensionNames(extensionsAsCstr);
 
     auto handle = physicalDevice.createDeviceUnique(deviceCreateInfo);
     m_handle = std::move(handle);
