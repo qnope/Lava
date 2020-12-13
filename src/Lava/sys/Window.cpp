@@ -29,10 +29,10 @@ std::vector<std::string> Window::getSdlExtensions(std::vector<std::string> addit
 
 Surface Window::createSurface(const Instance &instance) const {
     VkSurfaceKHR surface;
-    if (!SDL_Vulkan_CreateSurface(m_window.get(), instance.getHandle(), &surface))
+    if (!SDL_Vulkan_CreateSurface(m_window.get(), instance->getHandle(), &surface))
         throw SurfaceCreationException{};
 
-    return Surface{vk::UniqueSurfaceKHR(surface, instance.getHandle())};
+    return std::make_shared<SurfaceInstance>(vk::UniqueSurfaceKHR(surface, instance->getHandle()));
 }
 
 } // namespace lava

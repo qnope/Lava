@@ -4,9 +4,13 @@
 
 namespace lava {
 
-class Surface : public details::VulkanResource<vk::UniqueSurfaceKHR> {
+class SurfaceInstance : public details::VulkanResource<vk::UniqueSurfaceKHR> {
   public:
-    Surface(vk::UniqueSurfaceKHR surface);
+    SurfaceInstance(vk::UniqueSurfaceKHR surface);
 };
+
+using Surface = std::shared_ptr<SurfaceInstance>;
+
+Surface make_surface(vk::UniqueSurfaceKHR surface);
 
 } // namespace lava

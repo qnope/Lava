@@ -6,9 +6,9 @@
 namespace lava::details {
 template <typename T>
 struct VulkanResource {
-    auto getHandle() const noexcept { return **m_handle; }
+    auto getHandle() const noexcept { return *m_handle; }
 
   protected:
-    std::shared_ptr<T> m_handle;
+    T m_handle;
 };
 } // namespace lava::details
