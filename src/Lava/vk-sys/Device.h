@@ -11,12 +11,13 @@ struct NoPhysicalDeviceFoundException : static_exception<NoPhysicalDeviceFoundEx
 
 class LAVA_EXPORT Device : public details::VulkanResource<vk::UniqueDevice> {
   public:
-    Device(const Instance &instance, const std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> &features,
-           vk::QueueFlags queueFlags, std::optional<Surface> surface);
+    Device(const Instance &instance, std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> features,
+           std::vector<std::string> extensions, vk::QueueFlags queueFlags, std::optional<Surface> surface);
 
     const vk::QueueFlags queueFlags;
+    const bool hasPresentationQueue;
     const vk::PhysicalDeviceFeatures features;
-    const bool m_hasPresentationQueue;
+    const std::vector<std::string> extensions;
 };
 
 class LAVA_EXPORT DeviceBuilder {
@@ -35,9 +36,10 @@ class LAVA_EXPORT DeviceBuilder {
 
   private:
     const Instance &m_instance;
-    std::vector<vk::Bool32(vk::PhysicalDeviceFeatures::*)> m_features;
     vk::QueueFlags m_queueFlags{};
     std::optional<Surface> m_surface;
+    std::vector<std::string> m_extensions;
+    std::vector<vk::Bool32(vk::PhysicalDeviceFeatures::*)> m_features;
 };
 
 } // namespace lava

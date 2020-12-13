@@ -1,7 +1,7 @@
 #include "Window.h"
 
 #include <ltl/algos.h>
-#include <SDL2/SDL_vulkan.h>
+#include <SDL_vulkan.h>
 
 namespace lava {
 

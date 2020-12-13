@@ -4,6 +4,8 @@
 #include <ltl/Range/Filter.h>
 #include <ltl/Range/enumerate.h>
 
+#include <ltl/Range/actions.h>
+
 namespace lava {
 
 struct QueueFamillyInfo {
@@ -50,6 +52,16 @@ static auto hasSuitableQueue(vk::QueueFlags flags, std::optional<Surface> surfac
     };
 }
 
+static auto hasExtensions(const std::vector<std::string> &extensions) noexcept {
+    return [&extensions](vk::PhysicalDevice device) {
+        std::vector<std::string> deviceExtensions =
+            device.enumerateDeviceExtensionProperties() |
+            ltl::map(&vk::ExtensionProperties::extensionName, [](const auto &x) { return std::string{x.data()}; });
+        auto areContainedInDeviceExtensions = ltl::curry(lift(ltl::contains), deviceExtensions);
+        return ltl::all_of(extensions, areContainedInDeviceExtensions);
+    };
+}
+
 static auto buildFeatures(const std::vector<vk::Bool32(vk::PhysicalDeviceFeatures::*)> &features) noexcept {
     vk::PhysicalDeviceFeatures result{};
 
@@ -59,14 +71,16 @@ static auto buildFeatures(const std::vector<vk::Bool32(vk::PhysicalDeviceFeature
     return result;
 }
 
-Device::Device(const Instance &instance, const std::vector<vk::Bool32(vk::PhysicalDeviceFeatures::*)> &featurePtrs,
-               vk::QueueFlags queueFlags, std::optional<Surface> surface) :
-    queueFlags{queueFlags},               //
-    features{buildFeatures(featurePtrs)}, //
-    m_hasPresentationQueue{surface.has_value()} {
+Device::Device(const Instance &instance, std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> featurePtrs,
+               std::vector<std::string> _extensions, vk::QueueFlags queueFlags, std::optional<Surface> surface) :
+    queueFlags{queueFlags},                                                     //
+    hasPresentationQueue{surface.has_value()},                                  //
+    features{buildFeatures(featurePtrs)},                                       //
+    extensions{std::move(_extensions)} {                                        //
     auto physicalDevices = instance.physicalDevices() |                         //
                            ltl::filter(hasFeatures(featurePtrs)) |              //
                            ltl::filter(hasSuitableQueue(queueFlags, surface)) | //
+                           ltl::filter(hasExtensions(extensions)) |             //
                            ltl::to_vector;
 
     if (physicalDevices.empty())
@@ -114,9 +128,13 @@ DeviceBuilder &DeviceBuilder::withTransferQueue() noexcept {
 
 DeviceBuilder &DeviceBuilder::withPresentationQueue(Surface surface) noexcept {
     m_surface = std::move(surface);
+    m_extensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     return *this;
 }
 
-Device DeviceBuilder::build() { return Device{m_instance, std::move(m_features), m_queueFlags, std::move(m_surface)}; }
+Device DeviceBuilder::build() {
+    m_extensions |= ltl::actions::sort | ltl::actions::unique;
+    return Device{m_instance, std::move(m_features), std::move(m_extensions), m_queueFlags, std::move(m_surface)};
+}
 
 } // namespace lava

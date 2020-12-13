@@ -2,6 +2,26 @@ cmake_minimum_required(VERSION 3.14)
 
 include(GenerateExportHeader)
 
+FetchContent_Declare(
+  LittleTypeLibrary
+  GIT_REPOSITORY https://github.com/qnope/Little-Type-Library
+  GIT_TAG        origin/master
+)
+
+FetchContent_Declare(
+  SDL2
+  GIT_REPOSITORY https://github.com/SDL-mirror/SDL
+  GIT_TAG        release-2.0.12
+)
+
+FetchContent_MakeAvailable(LittleTypeLibrary)
+
+if(MSVC)
+    list(APPEND EXTRA_LIBS vcruntime)
+endif()
+
+FetchContent_MakeAvailable(SDL2)
+
 set(SYS_FILES
     Lava/sys/Event.h
     Lava/sys/Event.cpp
@@ -41,12 +61,11 @@ endif()
 
 target_include_directories(Lava PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
 target_include_directories(Lava PUBLIC .)
-target_include_directories(Lava PUBLIC ${SDL2_INCLUDE_DIRS})
 target_include_directories(Lava PUBLIC ${Vulkan_INCLUDE_DIRS})
 
 target_compile_features(Lava PUBLIC cxx_std_20)
 
 target_link_libraries(Lava PUBLIC
-    ${SDL2_LIBRARIES}
+    SDL2
     LTL
     ${Vulkan_LIBRARIES})

@@ -7,15 +7,7 @@ project(Lava
 
 include(FetchContent)
 
-FetchContent_Declare(
-  LittleTypeLibrary
-  GIT_REPOSITORY https://github.com/qnope/Little-Type-Library
-  GIT_TAG        origin/master
-)
-
-FetchContent_MakeAvailable(LittleTypeLibrary)
-
-find_package(SDL2 REQUIRED)
+#find_package(SDL2 REQUIRED)
 find_package(Vulkan REQUIRED)
 
 add_subdirectory(src/)

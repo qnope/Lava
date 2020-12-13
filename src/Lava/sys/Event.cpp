@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "Event.h"
 
 std::vector<lava::Event> lava::build_events() noexcept {
