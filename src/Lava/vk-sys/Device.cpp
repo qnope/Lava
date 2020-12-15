@@ -71,13 +71,10 @@ static auto buildFeatures(const std::vector<vk::Bool32(vk::PhysicalDeviceFeature
     return result;
 }
 
-DeviceInstance::DeviceInstance(const Instance &instance,
-                               std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> featurePtrs,
-                               std::vector<std::string> _extensions, vk::QueueFlags queueFlags, Surface surface) :
-    queueFlags{queueFlags},                                                     //
-    hasPresentationQueue{surface},                                              //
-    features{buildFeatures(featurePtrs)},                                       //
-    extensions{std::move(_extensions)} {                                        //
+static auto selectPhysicalDevice(const Instance &instance,
+                                 const std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> &featurePtrs,
+                                 const std::vector<std::string> &extensions, vk::QueueFlags queueFlags,
+                                 Surface surface) {
     auto physicalDevices = instance->physicalDevices() |                        //
                            ltl::filter(hasFeatures(featurePtrs)) |              //
                            ltl::filter(hasSuitableQueue(queueFlags, surface)) | //
@@ -88,7 +85,17 @@ DeviceInstance::DeviceInstance(const Instance &instance,
         throw NoPhysicalDeviceFoundException{};
 
     // maybe we can sort it
-    auto physicalDevice = physicalDevices.front();
+    return physicalDevices.front();
+}
+
+DeviceInstance::DeviceInstance(const Instance &instance,
+                               std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> featurePtrs,
+                               std::vector<std::string> _extensions, vk::QueueFlags queueFlags, Surface surface) :
+    queueFlags{queueFlags},               //
+    hasPresentationQueue{surface},        //
+    features{buildFeatures(featurePtrs)}, //
+    extensions{std::move(_extensions)},   //
+    physicalDevice{selectPhysicalDevice(instance, featurePtrs, extensions, queueFlags, surface)} {
     auto queueFamillyInfo = queueFamillyInfoFromDevice(physicalDevice, surface);
     float queuePriority = 1.0;
     uint32_t queueIndex = uint32_t(*ltl::index_if(queueFamillyInfo, isSuitableQueue(queueFlags, surface)));

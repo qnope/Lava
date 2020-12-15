@@ -1,12 +1,13 @@
 #include <thread>
 #include <iostream>
-#include <coroutine>
 
 #include <Lava/sys/Window.h>
 #include <Lava/sys/EventLoop.h>
 
 #include <Lava/vk-sys/Device.h>
 #include <Lava/vk-sys/Instance.h>
+
+#include <ltl/ltl.h>
 
 using namespace std::chrono_literals;
 
@@ -15,6 +16,7 @@ struct Example {
         for (auto &&event : events) {
             if (std::holds_alternative<lava::ExitEvent>(event))
                 return lava::NextEventLoopAction::EXIT;
+            std::visit([this](auto event) { m_window.processEvent(event); }, FWD(event));
         }
 
         return lava::NextEventLoopAction::POLLED;
@@ -31,12 +33,12 @@ struct Example {
                                     .setExtensions(std::move(m_extensions))
                                     .build();
 
-    lava::Surface m_surface = m_window.createSurface(m_instance);
-
     lava::Device m_device = lava::DeviceBuilder{m_instance} //
                                 .withGeometryShader()
-                                .withPresentationQueue(m_surface)
+                                .withPresentationQueue(m_window.getSurface(m_instance))
                                 .build();
+
+    lava::Swapchain m_swapchain = m_window.getSwapchain(m_device);
 };
 
 int main(int, char **) {

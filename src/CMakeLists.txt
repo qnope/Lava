@@ -47,6 +47,9 @@ set(VK_SYS_FILES
 
     Lava/vk-sys/Surface.h
     Lava/vk-sys/Surface.cpp
+
+    Lava/vk-sys/Swapchain.h
+    Lava/vk-sys/Swapchain.cpp
     )
 
 add_library(Lava SHARED

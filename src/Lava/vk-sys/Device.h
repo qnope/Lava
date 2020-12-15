@@ -18,6 +18,7 @@ class LAVA_EXPORT DeviceInstance : public details::VulkanResource<vk::UniqueDevi
     const bool hasPresentationQueue;
     const vk::PhysicalDeviceFeatures features;
     const std::vector<std::string> extensions;
+    const vk::PhysicalDevice physicalDevice;
 };
 
 using Device = std::shared_ptr<DeviceInstance>;

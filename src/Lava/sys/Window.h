@@ -4,8 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "../vk-sys/Instance.h"
 #include "../vk-sys/Surface.h"
+#include "../vk-sys/Instance.h"
+#include "../vk-sys/Swapchain.h"
+#include "Event.h"
 
 namespace lava {
 
@@ -28,11 +30,30 @@ class LAVA_EXPORT Window {
 
     std::vector<std::string> getSdlExtensions(std::vector<std::string> additionalExtensions) const noexcept;
 
-    Surface createSurface(const Instance &instance) const;
+    Surface getSurface(const Instance &instance = nullptr) const;
+    Swapchain getSwapchain(const Device &device = nullptr) const;
+
+    void processEvent(ResizeEvent event);
+
+    template <typename T>
+    void processEvent(T &&) {}
+
+  private:
+    Surface createSurface() const;
+    Swapchain createSwapchain() const;
 
   private:
     std::unique_ptr<SdlContext> m_context;
     std::unique_ptr<SDL_Window, WindowDeleter> m_window;
+
+    uint32_t m_width;
+    uint32_t m_height;
+
+    mutable Instance m_instance;
+    mutable Device m_device;
+
+    mutable Surface m_surface;
+    mutable Swapchain m_swapchain;
 };
 
 } // namespace lava
