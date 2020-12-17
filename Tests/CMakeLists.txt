@@ -13,3 +13,4 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 add_subdirectory(vk-sys)
+add_subdirectory(Image)

@@ -3,6 +3,7 @@
 #include <cassert>
 #include <ltl/algos.h>
 #include <SDL_vulkan.h>
+#include <iostream>
 
 namespace lava {
 

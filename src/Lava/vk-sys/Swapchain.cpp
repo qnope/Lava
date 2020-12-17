@@ -2,10 +2,15 @@
 #include <ltl/algos.h>
 #include <ltl/Range/Map.h>
 
+#include "ImageSubresourceRange.h"
+
+#include "../Image/ImageView.h"
+#include "../Image/SwapchainImage.h"
+
 namespace lava {
 
 static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(Device device, Surface surface) {
-    auto formats = device->physicalDevice.getSurfaceFormatsKHR(surface->getHandle());
+    auto formats = device->physicalDevice->getSurfaceFormatsKHR(surface->getHandle());
     constexpr auto target = vk::SurfaceFormatKHR{vk::Format::eB8G8R8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear};
     if (ltl::contains(formats, target)) {
         return target;
@@ -16,7 +21,7 @@ static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(Device device, Surface surfa
 }
 
 static vk::PresentModeKHR choosePresentMode(Device device, Surface surface) {
-    auto presentModes = device->physicalDevice.getSurfacePresentModesKHR(surface->getHandle());
+    auto presentModes = device->physicalDevice->getSurfacePresentModesKHR(surface->getHandle());
     if (ltl::contains(presentModes, vk::PresentModeKHR::eMailbox))
         return vk::PresentModeKHR::eMailbox;
     return vk::PresentModeKHR::eFifo;
@@ -33,9 +38,22 @@ static vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilit
     return actualExtent;
 }
 
+static std::vector<Image> createImages(vk::SwapchainKHR swapchain, Device device, vk::Format format,
+                                       image_dimension_t dimension) {
+    std::vector<Image> images;
+
+    for (auto img : device->getHandle().getSwapchainImagesKHR(swapchain)) {
+        ImageView imgView(device, img, vk::ImageType::e2D, format, ImageSubresourceRange::swapchainImage());
+        SwapchainImageInstance imageInstance{img, std::move(imgView), dimension};
+        images.push_back(std::make_shared<SwapchainImageInstance>(std::move(imageInstance)));
+    }
+
+    return images;
+}
+
 SwapchainInstance::SwapchainInstance(Device device, Surface surface, uint32_t width, uint32_t height,
                                      vk::SwapchainKHR oldSwapchain) {
-    auto capabilities = device->physicalDevice.getSurfaceCapabilitiesKHR(surface->getHandle());
+    auto capabilities = device->physicalDevice->getSurfaceCapabilitiesKHR(surface->getHandle());
     auto surfaceFormat = chooseSwapSurfaceFormat(device, surface);
     auto presentMode = choosePresentMode(device, surface);
     auto extent = chooseSwapExtent(capabilities, width, height);
@@ -56,6 +74,7 @@ SwapchainInstance::SwapchainInstance(Device device, Surface surface, uint32_t wi
                     .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
                     .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque);
     m_handle = device->getHandle().createSwapchainKHRUnique(info);
+    m_images = createImages(*m_handle, device, surfaceFormat.format, imageDimensionFromExtent2D(extent));
 }
 
 SwapchainBuilder::SwapchainBuilder(Surface surface, uint32_t width, uint32_t height) :

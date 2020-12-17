@@ -3,6 +3,7 @@
 #include "lava_export.h"
 #include "vulkan.h"
 #include "Device.h"
+#include "../Image/Image.h"
 
 namespace lava {
 
@@ -17,6 +18,9 @@ struct SurfaceFormatNotFoundException : static_exception<SurfaceFormatNotFoundEx
 class LAVA_EXPORT SwapchainInstance : public details::VulkanResource<vk::UniqueSwapchainKHR> {
   public:
     SwapchainInstance(Device device, Surface surface, uint32_t width, uint32_t height, vk::SwapchainKHR oldSwapchain);
+
+  private:
+    std::vector<Image> m_images;
 };
 
 using Swapchain = std::shared_ptr<SwapchainInstance>;

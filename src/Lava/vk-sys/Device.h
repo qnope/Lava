@@ -2,6 +2,7 @@
 
 #include "Instance.h"
 #include "Surface.h"
+#include <ltl/immutable.h>
 
 namespace lava {
 
@@ -14,11 +15,11 @@ class LAVA_EXPORT DeviceInstance : public details::VulkanResource<vk::UniqueDevi
     DeviceInstance(const Instance &instance, std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> features,
                    std::vector<std::string> extensions, vk::QueueFlags queueFlags, Surface surface);
 
-    const vk::QueueFlags queueFlags;
-    const bool hasPresentationQueue;
-    const vk::PhysicalDeviceFeatures features;
-    const std::vector<std::string> extensions;
-    const vk::PhysicalDevice physicalDevice;
+    ltl::immutable_t<vk::QueueFlags> queueFlags;
+    ltl::immutable_t<bool> hasPresentationQueue;
+    ltl::immutable_t<vk::PhysicalDeviceFeatures> features;
+    ltl::immutable_t<std::vector<std::string>> extensions;
+    ltl::immutable_t<vk::PhysicalDevice> physicalDevice;
 };
 
 using Device = std::shared_ptr<DeviceInstance>;

@@ -50,11 +50,34 @@ set(VK_SYS_FILES
 
     Lava/vk-sys/Swapchain.h
     Lava/vk-sys/Swapchain.cpp
+
+    Lava/vk-sys/ImageSubresourceRange.h
+    Lava/vk-sys/ImageSubresourceRange.cpp
+    )
+
+set(IMAGE_FILES
+    Lava/Image/Image.h
+    Lava/Image/Image.cpp
+
+    Lava/Image/ImageConcept.h
+
+    Lava/Image/ImageAccessRange.h
+
+    Lava/Image/SwapchainImage.h
+    Lava/Image/SwapchainImage.cpp
+
+    Lava/Image/ImageDimension.h
+    Lava/Image/ImageDimension.cpp
+
+    Lava/Image/ImageView.h
+    Lava/Image/ImageView.cpp
     )
 
 add_library(Lava SHARED
     ${SYS_FILES}
-    ${VK_SYS_FILES})
+    ${VK_SYS_FILES}
+    ${IMAGE_FILES})
+
 generate_export_header(Lava)
 
 if(MSVC)
