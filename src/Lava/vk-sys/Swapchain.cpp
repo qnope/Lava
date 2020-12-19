@@ -9,8 +9,8 @@
 
 namespace lava {
 
-static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(Device device, Surface surface) {
-    auto formats = device->physicalDevice->getSurfaceFormatsKHR(surface->getHandle());
+static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const Device &device, const Surface &surface) {
+    auto formats = device.physicalDevice->getSurfaceFormatsKHR(surface);
     constexpr auto target = vk::SurfaceFormatKHR{vk::Format::eB8G8R8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear};
     if (ltl::contains(formats, target)) {
         return target;
@@ -20,8 +20,8 @@ static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(Device device, Surface surfa
     return formats.front();
 }
 
-static vk::PresentModeKHR choosePresentMode(Device device, Surface surface) {
-    auto presentModes = device->physicalDevice->getSurfacePresentModesKHR(surface->getHandle());
+static vk::PresentModeKHR choosePresentMode(const Device &device, const Surface &surface) {
+    auto presentModes = device.physicalDevice->getSurfacePresentModesKHR(surface);
     if (ltl::contains(presentModes, vk::PresentModeKHR::eMailbox))
         return vk::PresentModeKHR::eMailbox;
     return vk::PresentModeKHR::eFifo;
@@ -38,11 +38,11 @@ static vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capabilit
     return actualExtent;
 }
 
-static std::vector<Image> createImages(vk::SwapchainKHR swapchain, Device device, vk::Format format,
+static std::vector<Image> createImages(vk::SwapchainKHR swapchain, vk::Device device, vk::Format format,
                                        image_dimension_t dimension) {
     std::vector<Image> images;
 
-    for (auto img : device->getHandle().getSwapchainImagesKHR(swapchain)) {
+    for (auto img : device.getSwapchainImagesKHR(swapchain)) {
         ImageView imgView(device, img, vk::ImageType::e2D, format, ImageSubresourceRange::swapchainImage());
         SwapchainImageInstance imageInstance{img, std::move(imgView), dimension};
         images.push_back(std::make_shared<SwapchainImageInstance>(std::move(imageInstance)));
@@ -51,9 +51,9 @@ static std::vector<Image> createImages(vk::SwapchainKHR swapchain, Device device
     return images;
 }
 
-SwapchainInstance::SwapchainInstance(Device device, Surface surface, uint32_t width, uint32_t height,
-                                     vk::SwapchainKHR oldSwapchain) {
-    auto capabilities = device->physicalDevice->getSurfaceCapabilitiesKHR(surface->getHandle());
+Swapchain::Swapchain(const Device &device, const Surface &surface, uint32_t width, uint32_t height,
+                     vk::SwapchainKHR oldSwapchain) {
+    auto capabilities = device.physicalDevice->getSurfaceCapabilitiesKHR(surface);
     auto surfaceFormat = chooseSwapSurfaceFormat(device, surface);
     auto presentMode = choosePresentMode(device, surface);
     auto extent = chooseSwapExtent(capabilities, width, height);
@@ -61,33 +61,33 @@ SwapchainInstance::SwapchainInstance(Device device, Surface surface, uint32_t wi
                                            capabilities.maxImageCount == 0 ? 3 : capabilities.maxImageCount);
     auto info = vk::SwapchainCreateInfoKHR()
                     .setClipped(true)
+                    .setSurface(surface)
                     .setImageExtent(extent)
                     .setImageArrayLayers(1)
                     .setPresentMode(presentMode)
                     .setMinImageCount(imageCount)
                     .setOldSwapchain(oldSwapchain)
-                    .setSurface(surface->getHandle())
                     .setImageFormat(surfaceFormat.format)
                     .setImageColorSpace(surfaceFormat.colorSpace)
                     .setPreTransform(capabilities.currentTransform)
                     .setImageSharingMode(vk::SharingMode::eExclusive)
                     .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
                     .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque);
-    m_handle = device->getHandle().createSwapchainKHRUnique(info);
+    m_handle = device.getHandle().createSwapchainKHRUnique(info);
     m_images = createImages(*m_handle, device, surfaceFormat.format, imageDimensionFromExtent2D(extent));
 }
 
-SwapchainBuilder::SwapchainBuilder(Surface surface, uint32_t width, uint32_t height) :
+SwapchainBuilder::SwapchainBuilder(const Surface &surface, uint32_t width, uint32_t height) :
     m_surface{surface}, m_width{width}, m_height{height} {}
 
-SwapchainBuilder &SwapchainBuilder::withOldSwapchain(Swapchain swapchain) {
-    m_swapchain = swapchain;
+SwapchainBuilder &SwapchainBuilder::withOldSwapchain(const Swapchain *swapchain) {
+    m_oldSwapchain = swapchain;
     return *this;
 }
 
-Swapchain SwapchainBuilder::build(Device device) {
-    vk::SwapchainKHR old = m_swapchain ? m_swapchain->getHandle() : vk::SwapchainKHR{};
-    return std::make_shared<SwapchainInstance>(device, m_surface, m_width, m_height, old);
+Swapchain SwapchainBuilder::build(const Device &device) {
+    vk::SwapchainKHR old = m_oldSwapchain ? m_oldSwapchain->getHandle() : vk::SwapchainKHR{};
+    return {device, m_surface, m_width, m_height, old};
 }
 
 } // namespace lava

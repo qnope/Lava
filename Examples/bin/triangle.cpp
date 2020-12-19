@@ -11,12 +11,19 @@
 
 using namespace std::chrono_literals;
 
-struct Example {
+class Example {
+  public:
+    template <typename T>
+    void operator()(T &&) const noexcept {}
+
+    void operator()(lava::ResizeEvent) { m_swapchain = createSwapchain(&m_swapchain); }
+
     lava::NextEventLoopAction operator()(std::vector<lava::Event> &&events) {
-        for (auto &&event : events) {
+        for (auto event : events) {
             if (std::holds_alternative<lava::ExitEvent>(event))
                 return lava::NextEventLoopAction::EXIT;
-            std::visit([this](auto event) { m_window.processEvent(event); }, FWD(event));
+            std::visit(*this, event);
+            std::visit([this](auto event) { m_window.processEvent(event); }, std::move(event));
         }
 
         return lava::NextEventLoopAction::POLLED;
@@ -24,6 +31,14 @@ struct Example {
 
     Example(lava::Window &window) : m_window{window} {}
 
+  private:
+    lava::Swapchain createSwapchain(const lava::Swapchain *oldSwapchain) {
+        return lava::SwapchainBuilder(m_surface, m_window.getWidth(), m_window.getHeight()) //
+            .withOldSwapchain(oldSwapchain)
+            .build(m_device);
+    }
+
+  private:
     lava::Window &m_window;
     std::vector<std::string> m_extensions = m_window.getSdlExtensions({VK_EXT_DEBUG_UTILS_EXTENSION_NAME});
 
@@ -33,12 +48,14 @@ struct Example {
                                     .setExtensions(std::move(m_extensions))
                                     .build();
 
+    lava::Surface m_surface = m_window.createSurface(m_instance);
+
     lava::Device m_device = lava::DeviceBuilder{m_instance} //
                                 .withGeometryShader()
-                                .withPresentationQueue(m_window.getSurface(m_instance))
+                                .withPresentationQueue(m_surface)
                                 .build();
 
-    lava::Swapchain m_swapchain = m_window.getSwapchain(m_device);
+    lava::Swapchain m_swapchain = createSwapchain(nullptr);
 };
 
 int main(int, char **) {
@@ -47,7 +64,7 @@ int main(int, char **) {
 
         Example example{window};
 
-        lava::EventLoop::run(example);
+        lava::EventLoop::run(std::move(example));
 
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;

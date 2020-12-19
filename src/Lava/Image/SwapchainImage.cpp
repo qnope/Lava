@@ -8,7 +8,7 @@ lava::SwapchainImageInstance::SwapchainImageInstance(vk::Image image, ImageView 
 
 vk::Image lava::SwapchainImageInstance::getImageHandle() const noexcept { return m_image; }
 
-vk::ImageView lava::SwapchainImageInstance::getImageViewHandle() const noexcept { return m_imageView.getHandle(); }
+vk::ImageView lava::SwapchainImageInstance::getImageViewHandle() const noexcept { return m_imageView; }
 
 lava::ImageAccessRange lava::SwapchainImageInstance::getImageAccessRange() const noexcept {
     return ImageAccessRange{.layout = m_currentLayout, //

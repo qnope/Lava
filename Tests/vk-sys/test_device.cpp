@@ -9,7 +9,7 @@ TEST(test_device, features) {
         lava::Device device = lava::DeviceBuilder{instance} //
                                   .withGeometryShader()
                                   .build();
-        ASSERT_TRUE(device->features->geometryShader);
+        ASSERT_TRUE(device.features->geometryShader);
     }
     {
         lava::Instance instance = lava::InstanceBuilder(lava::VulkanVersion::VERSION_1_0) //
@@ -17,6 +17,6 @@ TEST(test_device, features) {
 
         lava::Device device = lava::DeviceBuilder{instance} //
                                   .build();
-        ASSERT_FALSE(device->features->geometryShader);
+        ASSERT_FALSE(device.features->geometryShader);
     }
 }

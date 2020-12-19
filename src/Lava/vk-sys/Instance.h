@@ -6,18 +6,15 @@
 
 namespace lava {
 
-class LAVA_EXPORT InstanceInstance : public details::VulkanResource<vk::UniqueInstance> {
+class LAVA_EXPORT Instance : public details::VulkanResource<vk::UniqueInstance> {
   public:
-    InstanceInstance(const vk::ApplicationInfo &appInfo, std::vector<std::string> layers,
-                     std::vector<std::string> extensions);
+    Instance(const vk::ApplicationInfo &appInfo, std::vector<std::string> layers, std::vector<std::string> extensions);
 
     [[nodiscard]] std::vector<vk::PhysicalDevice> physicalDevices() const noexcept;
 
   private:
     std::vector<std::string> m_extensions;
 };
-
-using Instance = std::shared_ptr<InstanceInstance>;
 
 enum class VulkanVersion {
     VERSION_1_0 = VK_API_VERSION_1_0,

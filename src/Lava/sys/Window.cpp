@@ -32,43 +32,21 @@ std::vector<std::string> Window::getSdlExtensions(std::vector<std::string> addit
     return additionalExtensions;
 }
 
-Surface Window::getSurface(const Instance &instance) const {
-    if (instance)
-        m_instance = instance;
-    if (!m_surface)
-        m_surface = createSurface();
-    return m_surface;
-}
-
-Swapchain Window::getSwapchain(const Device &device) const {
-    if (device)
-        m_device = device;
-    if (!m_swapchain)
-        m_swapchain = createSwapchain();
-    return m_swapchain;
-}
-
 void Window::processEvent(ResizeEvent event) {
     m_width = event.width;
     m_height = event.height;
-
-    m_swapchain = createSwapchain();
 }
 
-Surface Window::createSurface() const {
-    assert(m_instance);
+uint32_t Window::getWidth() const noexcept { return m_width; }
+
+uint32_t Window::getHeight() const noexcept { return m_height; }
+
+Surface Window::createSurface(const Instance &instance) const {
     VkSurfaceKHR surface;
-    if (!SDL_Vulkan_CreateSurface(m_window.get(), m_instance->getHandle(), &surface))
+    if (!SDL_Vulkan_CreateSurface(m_window.get(), instance.getHandle(), &surface))
         throw SurfaceCreationException{};
 
-    return std::make_shared<SurfaceInstance>(vk::UniqueSurfaceKHR(surface, m_instance->getHandle()));
-}
-
-Swapchain Window::createSwapchain() const {
-    assert(m_device);
-    return SwapchainBuilder(getSurface(), m_width, m_height) //
-        .withOldSwapchain(m_swapchain)
-        .build(m_device);
+    return vk::UniqueSurfaceKHR(surface, instance.getHandle());
 }
 
 } // namespace lava

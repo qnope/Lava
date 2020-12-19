@@ -11,7 +11,7 @@ struct InvalidImageTypeException : static_exception<InvalidImageTypeException> {
 
 class LAVA_EXPORT ImageView : public details::VulkanResource<vk::UniqueImageView> {
   public:
-    ImageView(Device device, vk::Image image, vk::ImageType imageType, vk::Format format,
+    ImageView(vk::Device device, vk::Image image, vk::ImageType imageType, vk::Format format,
               vk::ImageSubresourceRange subresourceRange);
 };
 

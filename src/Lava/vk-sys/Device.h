@@ -10,10 +10,10 @@ struct NoPhysicalDeviceFoundException : static_exception<NoPhysicalDeviceFoundEx
     static constexpr auto error = "No Physical Device Found Exception";
 };
 
-class LAVA_EXPORT DeviceInstance : public details::VulkanResource<vk::UniqueDevice> {
+class LAVA_EXPORT Device : public details::VulkanResource<vk::UniqueDevice> {
   public:
-    DeviceInstance(const Instance &instance, std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> features,
-                   std::vector<std::string> extensions, vk::QueueFlags queueFlags, Surface surface);
+    Device(const Instance &instance, std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> features,
+           std::vector<std::string> extensions, vk::QueueFlags queueFlags, const Surface *surface);
 
     ltl::immutable_t<vk::QueueFlags> queueFlags;
     ltl::immutable_t<bool> hasPresentationQueue;
@@ -21,8 +21,6 @@ class LAVA_EXPORT DeviceInstance : public details::VulkanResource<vk::UniqueDevi
     ltl::immutable_t<std::vector<std::string>> extensions;
     ltl::immutable_t<vk::PhysicalDevice> physicalDevice;
 };
-
-using Device = std::shared_ptr<DeviceInstance>;
 
 class LAVA_EXPORT DeviceBuilder {
   public:
@@ -34,14 +32,14 @@ class LAVA_EXPORT DeviceBuilder {
     [[nodiscard]] DeviceBuilder &withComputeQueue() noexcept;
     [[nodiscard]] DeviceBuilder &withTransferQueue() noexcept;
 
-    [[nodiscard]] DeviceBuilder &withPresentationQueue(Surface surface) noexcept;
+    [[nodiscard]] DeviceBuilder &withPresentationQueue(const Surface &surface) noexcept;
 
     [[nodiscard]] Device build();
 
   private:
     const Instance &m_instance;
     vk::QueueFlags m_queueFlags{};
-    Surface m_surface;
+    const Surface *m_surface = nullptr;
     std::vector<std::string> m_extensions;
     std::vector<vk::Bool32(vk::PhysicalDeviceFeatures::*)> m_features;
 };

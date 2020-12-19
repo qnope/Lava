@@ -7,14 +7,14 @@ static vk::ImageViewType viewTypeFromImageType(vk::ImageType type) {
     throw InvalidImageTypeException{};
 }
 
-ImageView::ImageView(Device device, vk::Image image, vk::ImageType imageType, vk::Format format,
+ImageView::ImageView(vk::Device device, vk::Image image, vk::ImageType imageType, vk::Format format,
                      vk::ImageSubresourceRange subresourceRange) {
     auto info = vk::ImageViewCreateInfo()
                     .setImage(image)
                     .setFormat(format)
                     .setSubresourceRange(subresourceRange)
                     .setViewType(viewTypeFromImageType(imageType));
-    m_handle = device->getHandle().createImageViewUnique(info);
+    m_handle = device.createImageViewUnique(info);
 }
 
 } // namespace lava

@@ -15,29 +15,28 @@ struct SurfaceFormatNotFoundException : static_exception<SurfaceFormatNotFoundEx
     static constexpr auto error = "Surface Format Not Found Exception";
 };
 
-class LAVA_EXPORT SwapchainInstance : public details::VulkanResource<vk::UniqueSwapchainKHR> {
+class LAVA_EXPORT Swapchain : public details::VulkanResource<vk::UniqueSwapchainKHR> {
   public:
-    SwapchainInstance(Device device, Surface surface, uint32_t width, uint32_t height, vk::SwapchainKHR oldSwapchain);
+    Swapchain(const Device &device, const Surface &surface, uint32_t width, uint32_t height,
+              vk::SwapchainKHR oldSwapchain);
 
   private:
     std::vector<Image> m_images;
 };
 
-using Swapchain = std::shared_ptr<SwapchainInstance>;
-
 class LAVA_EXPORT SwapchainBuilder {
   public:
-    SwapchainBuilder(Surface surface, uint32_t width, uint32_t height);
+    SwapchainBuilder(const Surface &surface, uint32_t width, uint32_t height);
 
-    SwapchainBuilder &withOldSwapchain(Swapchain swapchain);
+    SwapchainBuilder &withOldSwapchain(const Swapchain *swapchain);
 
-    Swapchain build(Device device);
+    Swapchain build(const Device &device);
 
   private:
-    Surface m_surface;
+    const Surface &m_surface;
     uint32_t m_width;
     uint32_t m_height;
-    Swapchain m_swapchain;
+    const Swapchain *m_oldSwapchain = nullptr;
 };
 
 } // namespace lava

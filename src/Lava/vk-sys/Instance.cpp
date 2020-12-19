@@ -7,8 +7,8 @@
 using namespace ltl;
 
 namespace lava {
-InstanceInstance::InstanceInstance(const vk::ApplicationInfo &appInfo, std::vector<std::string> layers,
-                                   std::vector<std::string> extensions) :
+Instance::Instance(const vk::ApplicationInfo &appInfo, std::vector<std::string> layers,
+                   std::vector<std::string> extensions) :
     m_extensions{std::move(extensions)} {
     auto layers_str = layers | map(&std::string::c_str) | to_vector;
     auto extensions_str = m_extensions | map(&std::string::c_str) | to_vector;
@@ -20,7 +20,7 @@ InstanceInstance::InstanceInstance(const vk::ApplicationInfo &appInfo, std::vect
     m_handle = vk::createInstanceUnique(info);
 }
 
-std::vector<vk::PhysicalDevice> InstanceInstance::physicalDevices() const noexcept {
+std::vector<vk::PhysicalDevice> Instance::physicalDevices() const noexcept {
     return m_handle->enumeratePhysicalDevices();
 }
 
@@ -55,7 +55,7 @@ Instance InstanceBuilder::build() {
                     .setApplicationVersion(appVersion)
                     .setPEngineName(engineName.c_str())
                     .setPApplicationName(appName.c_str());
-    return std::make_shared<InstanceInstance>(info, std::move(layers), std::move(extensions));
+    return {info, std::move(layers), std::move(extensions)};
 }
 
 } // namespace lava

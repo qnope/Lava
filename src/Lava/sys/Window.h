@@ -30,17 +30,15 @@ class LAVA_EXPORT Window {
 
     std::vector<std::string> getSdlExtensions(std::vector<std::string> additionalExtensions) const noexcept;
 
-    Surface getSurface(const Instance &instance = nullptr) const;
-    Swapchain getSwapchain(const Device &device = nullptr) const;
-
     void processEvent(ResizeEvent event);
 
     template <typename T>
     void processEvent(T &&) {}
 
-  private:
-    Surface createSurface() const;
-    Swapchain createSwapchain() const;
+    uint32_t getWidth() const noexcept;
+    uint32_t getHeight() const noexcept;
+
+    Surface createSurface(const Instance &instance) const;
 
   private:
     std::unique_ptr<SdlContext> m_context;
@@ -48,12 +46,6 @@ class LAVA_EXPORT Window {
 
     uint32_t m_width;
     uint32_t m_height;
-
-    mutable Instance m_instance;
-    mutable Device m_device;
-
-    mutable Surface m_surface;
-    mutable Swapchain m_swapchain;
 };
 
 } // namespace lava

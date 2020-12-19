@@ -13,14 +13,14 @@ struct QueueFamillyInfo {
     bool withPresentationSupport{false};
 };
 
-static auto queueFamillyInfoFromDevice(vk::PhysicalDevice device, Surface surface) {
+static auto queueFamillyInfoFromDevice(vk::PhysicalDevice device, const Surface *surface) {
     auto properties = device.getQueueFamilyProperties();
     std::vector<QueueFamillyInfo> famillyInfo;
 
     for (auto [i, property] : ltl::enumerate(properties)) {
         QueueFamillyInfo info{};
         if (surface)
-            info.withPresentationSupport = device.getSurfaceSupportKHR(uint32_t(i), surface->getHandle());
+            info.withPresentationSupport = device.getSurfaceSupportKHR(uint32_t(i), *surface);
         info.flags = property.queueFlags;
         famillyInfo.push_back(info);
     }
@@ -36,8 +36,8 @@ static auto hasFeatures(const std::vector<vk::Bool32(vk::PhysicalDeviceFeatures:
     };
 }
 
-static auto isSuitableQueue(vk::QueueFlags flags, Surface surface) noexcept {
-    return [flags, surface = std::move(surface)](QueueFamillyInfo info) {
+static auto isSuitableQueue(vk::QueueFlags flags, const Surface *surface) noexcept {
+    return [flags, surface](QueueFamillyInfo info) {
         bool resFlags = (info.flags & flags) == flags;
         if (surface)
             return resFlags && info.withPresentationSupport;
@@ -45,8 +45,8 @@ static auto isSuitableQueue(vk::QueueFlags flags, Surface surface) noexcept {
     };
 }
 
-static auto hasSuitableQueue(vk::QueueFlags flags, Surface surface) noexcept {
-    return [flags, surface = std::move(surface)](vk::PhysicalDevice device) {
+static auto hasSuitableQueue(vk::QueueFlags flags, const Surface *surface) noexcept {
+    return [flags, surface](vk::PhysicalDevice device) {
         auto queueProperties = queueFamillyInfoFromDevice(device, surface);
         return ltl::any_of(queueProperties, isSuitableQueue(flags, surface));
     };
@@ -74,8 +74,8 @@ static auto buildFeatures(const std::vector<vk::Bool32(vk::PhysicalDeviceFeature
 static auto selectPhysicalDevice(const Instance &instance,
                                  const std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> &featurePtrs,
                                  const std::vector<std::string> &extensions, vk::QueueFlags queueFlags,
-                                 Surface surface) {
-    auto physicalDevices = instance->physicalDevices() |                        //
+                                 const Surface *surface) {
+    auto physicalDevices = instance.physicalDevices() |                         //
                            ltl::filter(hasFeatures(featurePtrs)) |              //
                            ltl::filter(hasSuitableQueue(queueFlags, surface)) | //
                            ltl::filter(hasExtensions(extensions)) |             //
@@ -88,13 +88,12 @@ static auto selectPhysicalDevice(const Instance &instance,
     return physicalDevices.front();
 }
 
-DeviceInstance::DeviceInstance(const Instance &instance,
-                               std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> featurePtrs,
-                               std::vector<std::string> _extensions, vk::QueueFlags queueFlags, Surface surface) :
-    queueFlags{queueFlags},               //
-    hasPresentationQueue{surface},        //
-    features{buildFeatures(featurePtrs)}, //
-    extensions{std::move(_extensions)},   //
+Device::Device(const Instance &instance, std::vector<vk::Bool32 vk::PhysicalDeviceFeatures::*> featurePtrs,
+               std::vector<std::string> _extensions, vk::QueueFlags queueFlags, const Surface *surface) :
+    queueFlags{queueFlags},                   //
+    hasPresentationQueue{surface != nullptr}, //
+    features{buildFeatures(featurePtrs)},     //
+    extensions{std::move(_extensions)},       //
     physicalDevice{selectPhysicalDevice(instance, featurePtrs, extensions, queueFlags, surface)} {
     auto queueFamillyInfo = queueFamillyInfoFromDevice(physicalDevice, surface);
     float queuePriority = 1.0;
@@ -136,16 +135,15 @@ DeviceBuilder &DeviceBuilder::withTransferQueue() noexcept {
     return *this;
 }
 
-DeviceBuilder &DeviceBuilder::withPresentationQueue(Surface surface) noexcept {
-    m_surface = std::move(surface);
+DeviceBuilder &DeviceBuilder::withPresentationQueue(const Surface &surface) noexcept {
+    m_surface = &surface;
     m_extensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     return *this;
 }
 
 Device DeviceBuilder::build() {
     m_extensions |= ltl::actions::sort | ltl::actions::unique;
-    return std::make_shared<DeviceInstance>(m_instance, std::move(m_features), std::move(m_extensions), m_queueFlags,
-                                            std::move(m_surface));
+    return {m_instance, std::move(m_features), std::move(m_extensions), m_queueFlags, m_surface};
 }
 
 } // namespace lava
