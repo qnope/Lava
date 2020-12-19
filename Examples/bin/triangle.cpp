@@ -6,6 +6,7 @@
 
 #include <Lava/vk-sys/Device.h>
 #include <Lava/vk-sys/Instance.h>
+#include <Lava/vk-sys/Swapchain.h>
 
 #include <ltl/ltl.h>
 
@@ -16,30 +17,32 @@ class Example {
     template <typename T>
     void operator()(T &&) const noexcept {}
 
-    void operator()(lava::ResizeEvent) { m_swapchain = createSwapchain(&m_swapchain); }
+    void operator()(lava::ResizeEvent event) {
+        m_window = lava::Window{std::move(m_window), event};
+        m_swapchain = createSwapchain(&m_swapchain);
+    }
 
     lava::NextEventLoopAction operator()(std::vector<lava::Event> &&events) {
         for (auto event : events) {
             if (std::holds_alternative<lava::ExitEvent>(event))
                 return lava::NextEventLoopAction::EXIT;
             std::visit(*this, event);
-            std::visit([this](auto event) { m_window.processEvent(event); }, std::move(event));
         }
 
         return lava::NextEventLoopAction::POLLED;
     }
 
-    Example(lava::Window &window) : m_window{window} {}
+    Example(lava::Window window) : m_window{std::move(window)} {}
 
   private:
     lava::Swapchain createSwapchain(const lava::Swapchain *oldSwapchain) {
-        return lava::SwapchainBuilder(m_surface, m_window.getWidth(), m_window.getHeight()) //
+        return lava::SwapchainBuilder(m_surface, m_window.width, m_window.height) //
             .withOldSwapchain(oldSwapchain)
             .build(m_device);
     }
 
   private:
-    lava::Window &m_window;
+    lava::Window m_window;
     std::vector<std::string> m_extensions = m_window.getSdlExtensions({VK_EXT_DEBUG_UTILS_EXTENSION_NAME});
 
     lava::Instance m_instance = lava::InstanceBuilder(lava::VulkanVersion::VERSION_1_0)
@@ -62,7 +65,7 @@ int main(int, char **) {
     try {
         lava::Window window{1024, 768, "Lava triangle"};
 
-        Example example{window};
+        Example example{std::move(window)};
 
         lava::EventLoop::run(std::move(example));
 

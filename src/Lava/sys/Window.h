@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
+#include <ltl/immutable.h>
 #include "../vk-sys/Surface.h"
 #include "../vk-sys/Instance.h"
-#include "../vk-sys/Swapchain.h"
 #include "Event.h"
 
 namespace lava {
@@ -25,27 +25,20 @@ class LAVA_EXPORT Window {
     };
 
   public:
+    Window(Window &&window, ResizeEvent event) noexcept;
     Window(int width, int height, const char *title);
     Window(int width, int height, const std::string &title);
 
     std::vector<std::string> getSdlExtensions(std::vector<std::string> additionalExtensions) const noexcept;
 
-    void processEvent(ResizeEvent event);
-
-    template <typename T>
-    void processEvent(T &&) {}
-
-    uint32_t getWidth() const noexcept;
-    uint32_t getHeight() const noexcept;
-
     Surface createSurface(const Instance &instance) const;
+
+    ltl::immutable_t<uint32_t> width;
+    ltl::immutable_t<uint32_t> height;
 
   private:
     std::unique_ptr<SdlContext> m_context;
     std::unique_ptr<SDL_Window, WindowDeleter> m_window;
-
-    uint32_t m_width;
-    uint32_t m_height;
 };
 
 } // namespace lava
