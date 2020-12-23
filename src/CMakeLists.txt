@@ -73,10 +73,16 @@ set(IMAGE_FILES
     Lava/Image/ImageView.cpp
     )
 
+set(SHADER_FILES
+    Lava/Shader/Shader.h
+    Lava/Shader/Shader.cpp
+    )
+
 add_library(Lava SHARED
     ${SYS_FILES}
     ${VK_SYS_FILES}
-    ${IMAGE_FILES})
+    ${IMAGE_FILES}
+    ${SHADER_FILES})
 
 generate_export_header(Lava)
 
