@@ -14,13 +14,44 @@ FetchContent_Declare(
   GIT_TAG        release-2.0.12
 )
 
-FetchContent_MakeAvailable(LittleTypeLibrary)
+FetchContent_Declare(
+  libshaderc
+  GIT_REPOSITORY https://github.com/google/shaderc
+  GIT_TAG        v2020.4
+)
+
+FetchContent_Declare(
+  SPIRV-Headers
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers
+  GIT_TAG        1.5.4.raytracing.fixed
+)
+
+FetchContent_Declare(
+  SPIRV-Tools
+  GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools
+  GIT_TAG        v2020.6
+)
+
+FetchContent_Declare(
+  glslang
+  GIT_REPOSITORY https://github.com/KhronosGroup/glslang
+  GIT_TAG        10-11.0.0
+)
 
 if(MSVC)
     list(APPEND EXTRA_LIBS vcruntime)
 endif()
 
+SET(SHADERC_SKIP_TESTS ON CACHE BOOL "Disable" FORCE)
+SET(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "Disable" FORCE)
+SET(SHADERC_ENABLE_SHARED_CRT ON CACHE BOOL "Disable" FORCE)
+
 FetchContent_MakeAvailable(SDL2)
+FetchContent_MakeAvailable(glslang)
+FetchContent_MakeAvailable(SPIRV-Headers)
+FetchContent_MakeAvailable(SPIRV-Tools)
+FetchContent_MakeAvailable(libshaderc)
+FetchContent_MakeAvailable(LittleTypeLibrary)
 
 set(SYS_FILES
     Lava/sys/Event.h
