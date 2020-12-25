@@ -131,4 +131,5 @@ target_compile_features(Lava PUBLIC cxx_std_20)
 target_link_libraries(Lava PUBLIC
     SDL2
     LTL
-    ${Vulkan_LIBRARIES})
+    ${Vulkan_LIBRARIES}
+    shaderc)

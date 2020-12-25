@@ -8,9 +8,13 @@
 #include <Lava/vk-sys/Instance.h>
 #include <Lava/vk-sys/Swapchain.h>
 
+#include <Lava/Shader/Shader.h>
+
 #include <ltl/ltl.h>
 
 using namespace std::chrono_literals;
+
+std::string getShaderPath(const std::string &path) { return "../../Examples/shaders/" + path; }
 
 class Example {
   public:
@@ -59,6 +63,12 @@ class Example {
                                 .build();
 
     lava::Swapchain m_swapchain = createSwapchain(nullptr);
+
+    lava::Shader m_vertexShader =
+        lava::compileShaderFile(m_device, getShaderPath("triangle/triangle.vert"), vk::ShaderStageFlagBits::eVertex);
+
+    lava::Shader m_fragmentShader =
+        lava::compileShaderFile(m_device, getShaderPath("triangle/triangle.frag"), vk::ShaderStageFlagBits::eFragment);
 };
 
 int main(int, char **) {
