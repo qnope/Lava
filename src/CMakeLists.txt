@@ -35,7 +35,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   glslang
   GIT_REPOSITORY https://github.com/KhronosGroup/glslang
-  GIT_TAG        10-11.0.0
+  GIT_TAG        11.2.0
 )
 
 if(MSVC)

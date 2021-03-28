@@ -1,27 +1,28 @@
 #pragma once
 
 #include <ltl/crtp.h>
+#include <ltl/condition.h>
 #include <variant>
 #include <concepts>
 #include "../vk-sys/vulkan.h"
 
 namespace lava {
 namespace ImageDimension {
-struct Dim1D : ltl::Comparable<Dim1D> {
+struct Dim1D : ltl::crtp::Comparable<Dim1D> {
     Dim1D(uint32_t w) : width{w} {}
     uint32_t width;
     static constexpr uint32_t height = 1;
     static constexpr uint32_t depth = 1;
 };
 
-struct Dim2D : ltl::Comparable<Dim2D> {
+struct Dim2D : ltl::crtp::Comparable<Dim2D> {
     Dim2D(uint32_t w, uint32_t h) : width{w}, height{h} {}
     uint32_t width;
     uint32_t height;
     static constexpr uint32_t depth = 1;
 };
 
-struct Dim3D : ltl::Comparable<Dim3D> {
+struct Dim3D : ltl::crtp::Comparable<Dim3D> {
     Dim3D(uint32_t w, uint32_t h, uint32_t d) : width{w}, height{h}, depth{d} {}
     uint32_t width;
     uint32_t height;
@@ -29,8 +30,7 @@ struct Dim3D : ltl::Comparable<Dim3D> {
 };
 
 template <typename T>
-    requires std::same_as<T, Dim1D> || std::same_as<T, Dim2D> ||
-    std::same_as<T, Dim3D> bool operator==(const T &a, const T &b) {
+requires((ltl::type_v<T> == ltl::AnyOfT<Dim1D, Dim2D, Dim3D>).value) bool operator==(const T &a, const T &b) {
     return a.width == b.width && a.height == b.height && a.depth == b.depth;
 }
 } // namespace ImageDimension
